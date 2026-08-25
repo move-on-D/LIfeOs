@@ -1,0 +1,334 @@
+{
+  "checklist": [
+    {
+      "id": 1,
+      "label": "College",
+      "completed": true,
+      "tag": "Study"
+    },
+    {
+      "id": 2,
+      "label": "Code",
+      "completed": true,
+      "tag": "Dev"
+    },
+    {
+      "id": 3,
+      "label": "Workout",
+      "completed": false,
+      "tag": "Health"
+    },
+    {
+      "id": 4,
+      "label": "Read",
+      "completed": true,
+      "tag": "Mind"
+    },
+    {
+      "id": 5,
+      "label": "NoFap",
+      "completed": true,
+      "tag": "Focus"
+    },
+    {
+      "id": 6,
+      "label": "Sleep Early",
+      "completed": false,
+      "tag": "Rest"
+    }
+  ],
+  "metrics": {
+    "focus": 0,
+    "energy": 0,
+    "discipline": 0,
+    "happiness": 0
+  },
+  "habits": [
+    {
+      "id": 1,
+      "name": "Daily Coding Practice ",
+      "streak": 0,
+      "category": "Skills",
+      "status": "Active"
+    },
+    {
+      "id": 2,
+      "name": "Morning Workout & Gym",
+      "streak": 0,
+      "category": "Health",
+      "status": "Active"
+    },
+    {
+      "id": 3,
+      "name": "Read 20 Pages Daily",
+      "streak": 0,
+      "category": "Mindset",
+      "status": "Active"
+    },
+    {
+      "id": 4,
+      "name": "NoFap & High Focus Mode",
+      "streak": 0,
+      "category": "Discipline",
+      "status": "Active"
+    },
+    {
+      "id": 5,
+      "name": "Sleep Before 11:30 PM",
+      "streak": 0,
+      "category": "Recovery",
+      "status": "Active"
+    }
+  ],
+  "accounts": [
+    {
+      "id": 1,
+      "service": "Google Account",
+      "identity": "moveon.main@gmail.com",
+      "category": "Primary",
+      "recovery": "2FA Enabled + Phone",
+      "status": "Secured"
+    },
+    {
+      "id": 2,
+      "service": "GitHub",
+      "identity": "@moveon-dev",
+      "category": "Development",
+      "recovery": "SSH Key + Security Keys",
+      "status": "Secured"
+    },
+    {
+      "id": 3,
+      "service": "LinkedIn",
+      "identity": "MOVE ON",
+      "category": "Professional",
+      "recovery": "Authenticator App",
+      "status": "Secured"
+    },
+    {
+      "id": 4,
+      "service": "Vercel",
+      "identity": "moveon-vercel",
+      "category": "Deployment",
+      "recovery": "GitHub OAuth",
+      "status": "Secured"
+    },
+    {
+      "id": 5,
+      "service": "Discord",
+      "identity": "MOVEON#0001",
+      "category": "Social",
+      "recovery": "Backup Codes Downloaded",
+      "status": "Secured"
+    },
+    {
+      "id": 1787650722393,
+      "service": "hmj",
+      "identity": "hk",
+      "category": "Primary",
+      "recovery": "jukgjl",
+      "status": "Secured"
+    }
+  ],
+  "finance": {
+    "income": 10,
+    "expenses": 20,
+    "transactions": [
+      {
+        "id": 1,
+        "title": "Server Hosting / Domain",
+        "category": "Tech",
+        "amount": 500,
+        "type": "expense",
+        "date": "Today"
+      },
+      {
+        "id": 2,
+        "title": "College Books & Supplies",
+        "category": "Study",
+        "amount": 1200,
+        "type": "expense",
+        "date": "Yesterday"
+      },
+      {
+        "id": 3,
+        "title": "Freelance Coding Stipend",
+        "category": "Income",
+        "amount": 15000,
+        "type": "income",
+        "date": "Aug 10"
+      }
+    ]
+  },
+  "entertainment": [
+    {
+      "id": 1,
+      "title": "Jujutsu Kaisen",
+      "category": "Anime",
+      "rating": "9.8",
+      "status": "Watching (Season 2)",
+      "image": "🔥"
+    },
+    {
+      "id": 2,
+      "title": "Demon Slayer",
+      "category": "Anime",
+      "rating": "9.5",
+      "status": "Completed",
+      "image": "⚔️"
+    },
+    {
+      "id": 3,
+      "title": "Cyberpunk 2077",
+      "category": "Gaming",
+      "rating": "9.9",
+      "status": "Active Play",
+      "image": "🎮"
+    },
+    {
+      "id": 4,
+      "title": "Interstellar",
+      "category": "Movie",
+      "rating": "10/10",
+      "status": "Favorite",
+      "image": "🚀"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "name": "LifeOS",
+      "desc": "Personal Digital Command Center (React, Express, Tailwind)",
+      "status": "V1/V2 Building",
+      "github": "https://github.com",
+      "deploy": "Local / Vercel",
+      "progress": 0
+    },
+    {
+      "id": 2,
+      "name": "Portfolio Site",
+      "desc": "Personal Cyberpunk Developer Portfolio",
+      "status": "Completed",
+      "github": "https://github.com",
+      "deploy": "vercel.app",
+      "progress": 0
+    },
+    {
+      "id": 3,
+      "name": "AI Habit Engine",
+      "desc": "Predictive routines based on user discipline score",
+      "status": "Planning (V3)",
+      "github": "#",
+      "deploy": "Internal",
+      "progress": 0
+    }
+  ],
+  "subjects": [
+    {
+      "id": 1,
+      "name": "Data Structures & Algorithms",
+      "code": "CS-301",
+      "progress": 0,
+      "teacher": "Dept. Head",
+      "notesCount": 0
+    },
+    {
+      "id": 2,
+      "name": "Operating Systems & Architecture",
+      "code": "CS-302",
+      "progress": 0,
+      "teacher": "Prof. Sharma",
+      "notesCount": 0
+    },
+    {
+      "id": 3,
+      "name": "Database Management Systems",
+      "code": "CS-303",
+      "progress": 0,
+      "teacher": "Dr. Rao",
+      "notesCount": 0
+    },
+    {
+      "id": 4,
+      "name": "Web Engineering & Frameworks",
+      "code": "CS-304",
+      "progress": 0,
+      "teacher": "Prof. Gupta",
+      "notesCount": 0
+    }
+  ],
+  "security": {
+    "score": 0,
+    "twoFactorEnabled": true,
+    "localBackup": true,
+    "encryptionKeySet": true,
+    "alerts": [
+      {
+        "id": 1,
+        "message": "All master recovery keys safely encrypted locally.",
+        "level": "info"
+      }
+    ]
+  },
+  "reminders": [
+    {
+      "id": 1,
+      "time": "08:30",
+      "title": "Morning Gym & Workout",
+      "category": "Health",
+      "enabled": true
+    },
+    {
+      "id": 2,
+      "time": "10:00",
+      "title": "College Lectures & Study",
+      "category": "Study",
+      "enabled": true
+    },
+    {
+      "id": 3,
+      "time": "16:00",
+      "title": "2 Hours Deep Coding Session",
+      "category": "Dev",
+      "enabled": true
+    },
+    {
+      "id": 4,
+      "time": "22:30",
+      "title": "Daily Review & Sleep Early",
+      "category": "Rest",
+      "enabled": true
+    }
+  ],
+  "vaultFiles": [
+    {
+      "id": 1,
+      "title": "Degree Certificates & Transcripts.pdf",
+      "filename": "Degree_Certificates.pdf",
+      "category": "Education",
+      "size": "2.4 MB",
+      "date": "2026-08-12"
+    },
+    {
+      "id": 2,
+      "title": "National Identity Proof (Aadhaar).pdf",
+      "filename": "ID_Proof.pdf",
+      "category": "Identity",
+      "size": "1.1 MB",
+      "date": "2026-08-12"
+    }
+  ],
+  "user": {
+    "name": "MOVE ON.",
+    "motto": "Control your digital life, or it will control you.",
+    "quote": "Discipline today, Freedom tomorrow.",
+    "progress": 0
+  },
+  "users": [
+    {
+      "id": 1787655743838,
+      "username": "moveon",
+      "password": "$2b$10$R4GvIzAphjS.WVI4VRJTnOSN2dszHAGKQF.l4rUZKVdgp5X.yGBXu"
+    }
+  ]
+}
