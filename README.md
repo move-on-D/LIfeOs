@@ -49,5 +49,9 @@ Life OS is a personal, cyberpunk-themed digital command center built to track, m
 ## 🔐 Accessing the Vault
 On the first run, click **"Initialize Vault"** on the login screen to create your master operator ID and password.
 
+## ⚖️ Copyright & License
+**© 2026 MOVE ON. All Rights Reserved.**
+This is a proprietary project. You may view the code for educational purposes, but you are **strictly prohibited** from copying, modifying, distributing, or claiming this project (or its code) as your own. See the `LICENSE` file for full details.
+
 ---
 *Created by [MOVE ON](https://github.com/move-on-D)*
