@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, IndianRupee, ArrowUpRight, ArrowDownLeft, Plus, X } from 'lucide-react';
+import { Wallet, IndianRupee, ArrowUpRight, ArrowDownLeft, Plus, X, Trash2 } from 'lucide-react';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function FinanceTracker() {
-  const [finance, setFinance] = useState({
-    income: 15000,
-    expenses: 2050,
-    transactions: [
-      { id: 1, title: 'Server Hosting / Domain', category: 'Tech', amount: 850, type: 'expense', date: 'Today' },
-      { id: 2, title: 'College Books & Supplies', category: 'Study', amount: 1200, type: 'expense', date: 'Yesterday' },
-      { id: 3, title: 'Freelance Coding Stipend', category: 'Income', amount: 15000, type: 'income', date: 'Aug 10' }
-    ]
-  });
-
+  const [finance, setFinance] = useState({ income: 0, expenses: 0, transactions: [] });
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    category: 'Tech',
-    amount: '',
-    type: 'expense'
-  });
+  const [formData, setFormData] = useState({ title: '', category: 'Tech', amount: '', type: 'expense' });
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/finance`)
-      .then(res => res.json())
-      .then(data => { if (data.transactions) setFinance(data); })
-      .catch(() => {});
+    fetch(`${API}/api/finance`).then(r => r.json()).then(d => { if (d.transactions) setFinance(d); }).catch(() => {});
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this transaction?')) return;
+    try {
+      const res = await fetch(`${API}/api/finance/delete/${id}`, { method: 'DELETE' });
+      const d = await res.json(); if (d.finance) setFinance(d.finance);
+    } catch { setFinance(p => ({ ...p, transactions: p.transactions.filter(t => t.id !== id) })); }
+  };
 
   const handleAddTransaction = async (e) => {
     e.preventDefault();
@@ -117,8 +110,11 @@ export default function FinanceTracker() {
                   <div className="text-xs text-slate-400 font-mono">{exp.category} • {exp.date}</div>
                 </div>
               </div>
-              <div className={`text-sm font-bold font-mono ${exp.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {exp.type === 'income' ? '+' : '-'} ₹{exp.amount}
+              <div className="flex items-center gap-3">
+                <div className={`text-sm font-bold font-mono ${exp.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {exp.type === 'income' ? '+' : '-'} ₹{exp.amount}
+                </div>
+                <button onClick={() => handleDelete(exp.id)} className="p-1.5 rounded-lg bg-rose-950/50 border border-rose-800/50 text-rose-400 hover:bg-rose-900/50 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             </div>
           ))}

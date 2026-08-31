@@ -261,6 +261,20 @@ app.post('/api/accounts/add', (req, res) => {
   res.json({ success: true, accounts: db.accounts });
 });
 
+app.put('/api/accounts/edit/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.accounts = db.accounts.map(a => a.id == id ? { ...a, ...req.body } : a);
+  saveDB(db);
+  res.json({ success: true, accounts: db.accounts });
+});
+
+app.delete('/api/accounts/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.accounts = db.accounts.filter(a => a.id != id);
+  saveDB(db);
+  res.json({ success: true, accounts: db.accounts });
+});
+
 // --- FINANCE API ---
 app.get('/api/finance', (req, res) => {
   res.json(db.finance || defaultState.finance);
@@ -288,6 +302,18 @@ app.post('/api/finance/transaction', (req, res) => {
   res.json({ success: true, finance: db.finance });
 });
 
+app.delete('/api/finance/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  const tx = db.finance.transactions.find(t => t.id == id);
+  if (tx) {
+    if (tx.type === 'income') db.finance.income -= tx.amount;
+    else db.finance.expenses -= tx.amount;
+    db.finance.transactions = db.finance.transactions.filter(t => t.id != id);
+    saveDB(db);
+  }
+  res.json({ success: true, finance: db.finance });
+});
+
 // --- ENTERTAINMENT API ---
 app.get('/api/entertainment', (req, res) => {
   res.json(db.entertainment || defaultState.entertainment);
@@ -305,6 +331,20 @@ app.post('/api/entertainment/add', (req, res) => {
   };
   if (!db.entertainment) db.entertainment = [];
   db.entertainment.unshift(newItem);
+  saveDB(db);
+  res.json({ success: true, entertainment: db.entertainment });
+});
+
+app.put('/api/entertainment/edit/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.entertainment = db.entertainment.map(e => e.id == id ? { ...e, ...req.body } : e);
+  saveDB(db);
+  res.json({ success: true, entertainment: db.entertainment });
+});
+
+app.delete('/api/entertainment/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.entertainment = db.entertainment.filter(e => e.id != id);
   saveDB(db);
   res.json({ success: true, entertainment: db.entertainment });
 });
@@ -331,6 +371,20 @@ app.post('/api/projects/add', (req, res) => {
   res.json({ success: true, projects: db.projects });
 });
 
+app.put('/api/projects/edit/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.projects = db.projects.map(p => p.id == id ? { ...p, ...req.body } : p);
+  saveDB(db);
+  res.json({ success: true, projects: db.projects });
+});
+
+app.delete('/api/projects/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.projects = db.projects.filter(p => p.id != id);
+  saveDB(db);
+  res.json({ success: true, projects: db.projects });
+});
+
 // --- COLLEGE & STUDY API ---
 app.get('/api/college', (req, res) => {
   res.json(db.subjects || defaultState.subjects);
@@ -350,6 +404,48 @@ app.post('/api/college/add', (req, res) => {
   db.subjects.push(newSub);
   saveDB(db);
   res.json({ success: true, subjects: db.subjects });
+});
+
+app.put('/api/college/edit/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.subjects = db.subjects.map(s => s.id == id ? { ...s, ...req.body, progress: parseInt(req.body.progress) || s.progress } : s);
+  saveDB(db);
+  res.json({ success: true, subjects: db.subjects });
+});
+
+app.delete('/api/college/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.subjects = db.subjects.filter(s => s.id != id);
+  saveDB(db);
+  res.json({ success: true, subjects: db.subjects });
+});
+
+// --- HABITS API ---
+app.get('/api/habits', (req, res) => {
+  res.json(db.habits || defaultState.habits);
+});
+
+app.post('/api/habits/add', (req, res) => {
+  const { name, category, streak } = req.body;
+  const newHabit = { id: Date.now(), name: name || 'New Habit', category: category || 'General', streak: parseInt(streak) || 0, status: 'Active' };
+  if (!db.habits) db.habits = [];
+  db.habits.push(newHabit);
+  saveDB(db);
+  res.json({ success: true, habits: db.habits });
+});
+
+app.put('/api/habits/edit/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.habits = db.habits.map(h => h.id == id ? { ...h, ...req.body } : h);
+  saveDB(db);
+  res.json({ success: true, habits: db.habits });
+});
+
+app.delete('/api/habits/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.habits = db.habits.filter(h => h.id != id);
+  saveDB(db);
+  res.json({ success: true, habits: db.habits });
 });
 
 // --- AI ASSISTANT SMART CHAT API ---
