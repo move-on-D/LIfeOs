@@ -14,7 +14,7 @@ export default function DocumentsVault() {
   const [isUploading, setIsUploading] = useState(false);
 
   const fetchFiles = () => {
-    fetch('http://localhost:5000/api/vault/files')
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/files`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setDocs(data); })
       .catch(() => {});
@@ -34,7 +34,7 @@ export default function DocumentsVault() {
     reader.onload = async () => {
       const base64Data = reader.result;
       try {
-        const res = await fetch('http://localhost:5000/api/vault/upload', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -69,7 +69,7 @@ export default function DocumentsVault() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/vault/delete/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/delete/${id}`, {
         method: 'DELETE'
       });
       const data = await res.json();
@@ -122,7 +122,7 @@ export default function DocumentsVault() {
               <div className="flex items-center gap-3">
                 {doc.filename && (
                   <a
-                    href={`http://localhost:5000/api/vault/download/${doc.filename}`}
+                    href={`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/download/${doc.filename}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-amber-400 hover:text-amber-300 flex items-center gap-1"

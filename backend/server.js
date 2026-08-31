@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -106,31 +107,56 @@ const defaultState = {
   }
 };
 
-// Load DB from Disk
-function loadDB() {
+const mongoose = require('mongoose');
+
+// Define MongoDB Schema for App State
+const AppStateSchema = new mongoose.Schema({
+  configId: { type: String, default: 'main' },
+  data: Object
+});
+const AppState = mongoose.model('AppState', AppStateSchema);
+
+let db = defaultState; // In-memory cache
+
+// Connect to MongoDB
+if (process.env.MONGO_URI) {
+  mongoose.connect(process.env.MONGO_URI, { family: 4 })
+    .then(async () => {
+      console.log('✅ Connected to MongoDB Atlas Cloud!');
+      // Load state from Cloud
+      let doc = await AppState.findOne({ configId: 'main' });
+      if (doc) {
+        db = { ...defaultState, ...doc.data };
+      } else {
+        await new AppState({ configId: 'main', data: defaultState }).save();
+      }
+    })
+    .catch(err => console.error('MongoDB connection error:', err));
+} else {
+  // Fallback to local DB if no URI
+  console.log('⚠️ No MONGO_URI found in .env. Falling back to local file storage.');
   try {
     if (fs.existsSync(DB_FILE)) {
-      const data = fs.readFileSync(DB_FILE, 'utf8');
-      const loaded = JSON.parse(data);
-      return { ...defaultState, ...loaded };
+      db = { ...defaultState, ...JSON.parse(fs.readFileSync(DB_FILE, 'utf8')) };
     }
-  } catch (err) {
-    console.error('Error reading DB file:', err);
-  }
-  saveDB(defaultState);
-  return defaultState;
+  } catch (e) {}
 }
 
-// Save DB to Disk
+// Universal Save Function (Updates Cloud and Local Cache)
 function saveDB(dbData) {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Error writing DB file:', err);
+  db = dbData; // Update in-memory
+  
+  if (process.env.MONGO_URI && mongoose.connection.readyState === 1) {
+    // Save to Cloud
+    AppState.updateOne({ configId: 'main' }, { data: dbData }, { upsert: true }).exec()
+      .catch(err => console.error('Cloud Sync Error:', err));
+  } else {
+    // Save to Local File
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2), 'utf8');
+    } catch (e) {}
   }
 }
-
-let db = loadDB();
 
 // --- AUTHENTICATION API ---
 app.post('/api/auth/register', async (req, res) => {

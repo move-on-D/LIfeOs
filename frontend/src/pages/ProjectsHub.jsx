@@ -19,7 +19,7 @@ export default function ProjectsHub() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/projects')
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/projects`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setProjects(data); })
       .catch(() => {});
@@ -30,7 +30,7 @@ export default function ProjectsHub() {
     if (!formData.name) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/projects/add', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/projects/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

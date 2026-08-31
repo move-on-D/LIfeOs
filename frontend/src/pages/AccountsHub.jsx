@@ -20,7 +20,7 @@ export default function AccountsHub() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/accounts')
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/accounts`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setAccounts(data); })
       .catch(() => {});
@@ -31,7 +31,7 @@ export default function AccountsHub() {
     if (!formData.service || !formData.identity) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/accounts/add', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/accounts/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, status: 'Secured' })

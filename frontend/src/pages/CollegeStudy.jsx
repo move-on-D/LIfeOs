@@ -18,7 +18,7 @@ export default function CollegeStudy() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/college')
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/college`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setSubjects(data); })
       .catch(() => {});
@@ -29,7 +29,7 @@ export default function CollegeStudy() {
     if (!formData.name || !formData.code) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/college/add', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/college/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

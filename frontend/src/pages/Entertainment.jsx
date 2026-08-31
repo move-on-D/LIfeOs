@@ -20,7 +20,7 @@ export default function Entertainment() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/entertainment')
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/entertainment`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setItems(data); })
       .catch(() => {});
@@ -31,7 +31,7 @@ export default function Entertainment() {
     if (!formData.title) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/entertainment/add', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/entertainment/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

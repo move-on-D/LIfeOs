@@ -21,7 +21,7 @@ export default function FinanceTracker() {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/finance')
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/finance`)
       .then(res => res.json())
       .then(data => { if (data.transactions) setFinance(data); })
       .catch(() => {});
@@ -32,7 +32,7 @@ export default function FinanceTracker() {
     if (!formData.title || !formData.amount) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/finance/transaction', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/finance/transaction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
