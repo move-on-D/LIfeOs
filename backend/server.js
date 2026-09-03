@@ -174,6 +174,45 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ success: true, token, user: { username: user.username } });
 });
 
+// Google OAuth Login
+app.post('/api/auth/google', async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) return res.status(400).json({ error: 'No Google credential provided' });
+
+  try {
+    const gRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+    if (!gRes.ok) return res.status(400).json({ error: 'Invalid Google Token' });
+
+    const gUser = await gRes.json();
+    const username = gUser.email ? gUser.email.split('@')[0] : `google_${Date.now()}`;
+
+    let user = null;
+    if (process.env.MONGO_URI && mongoose.connection.readyState === 1) {
+      user = await User.findOne({ username });
+      if (!user) {
+        user = new User({ username, password: 'GOOGLE_OAUTH_USER' });
+        await user.save();
+      }
+    } else {
+      const usersFile = path.join(DATA_DIR, 'users.json');
+      let users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile, 'utf8')) : [];
+      user = users.find(u => u.username === username);
+      if (!user) {
+        user = { id: Date.now(), username, password: 'GOOGLE_OAUTH_USER' };
+        users.push(user);
+        fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf8');
+      }
+    }
+
+    await getUserDB(username);
+    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '30d' });
+    res.json({ success: true, token, user: { username } });
+  } catch (err) {
+    console.error('Google Auth Error:', err);
+    res.status(500).json({ error: 'Google login failed' });
+  }
+});
+
 // Root API Health
 app.get('/', (req, res) => {
   res.json({ message: 'LifeOS V2 Isolated Multi-Tenant Backend', status: 'Operational' });
