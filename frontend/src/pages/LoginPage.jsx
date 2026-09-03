@@ -26,9 +26,9 @@ export default function LoginPage({ setIsAuthenticated, setUser }) {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
   });
 
-  // Load Google GSI Script if Client ID exists
+  // Load Google GSI Script
   useEffect(() => {
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '137113753927-aqdi3dk3pucl5trnkbpv0o5mrfabbr9n.apps.googleusercontent.com';
     if (googleClientId) {
       setGoogleClientSet(true);
       const script = document.createElement('script');
