@@ -24,86 +24,30 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-// Initial Default State
+// Clean Default State - Every user starts fresh, no dummy data
 const defaultState = {
-  checklist: [
-    { id: 1, label: 'College', completed: true, tag: 'Study' },
-    { id: 2, label: 'Code', completed: true, tag: 'Dev' },
-    { id: 3, label: 'Workout', completed: false, tag: 'Health' },
-    { id: 4, label: 'Read', completed: true, tag: 'Mind' },
-    { id: 5, label: 'NoFap', completed: true, tag: 'Focus' },
-    { id: 6, label: 'Sleep Early', completed: false, tag: 'Rest' }
-  ],
-  metrics: {
-    focus: 85,
-    energy: 62,
-    discipline: 90,
-    happiness: 70
-  },
-  habits: [
-    { id: 1, name: 'Daily Coding Practice (2 Hours)', streak: 18, category: 'Skills', status: 'Active' },
-    { id: 2, name: 'Morning Workout & Gym', streak: 12, category: 'Health', status: 'Active' },
-    { id: 3, name: 'Read 20 Pages Daily', streak: 9, category: 'Mindset', status: 'Active' },
-    { id: 4, name: 'NoFap & High Focus Mode', streak: 24, category: 'Discipline', status: 'Active' },
-    { id: 5, name: 'Sleep Before 11:30 PM', streak: 5, category: 'Recovery', status: 'Active' }
-  ],
-  accounts: [
-    { id: 1, service: 'Google Account', identity: 'moveon.main@gmail.com', category: 'Primary', recovery: '2FA Enabled + Phone', status: 'Secured' },
-    { id: 2, service: 'GitHub', identity: '@moveon-dev', category: 'Development', recovery: 'SSH Key + Security Keys', status: 'Secured' },
-    { id: 3, service: 'LinkedIn', identity: 'MOVE ON', category: 'Professional', recovery: 'Authenticator App', status: 'Secured' },
-    { id: 4, service: 'Vercel', identity: 'moveon-vercel', category: 'Deployment', recovery: 'GitHub OAuth', status: 'Secured' },
-    { id: 5, service: 'Discord', identity: 'MOVEON#0001', category: 'Social', recovery: 'Backup Codes Downloaded', status: 'Secured' }
-  ],
-  finance: {
-    income: 15000,
-    expenses: 2050,
-    transactions: [
-      { id: 1, title: 'Server Hosting / Domain', category: 'Tech', amount: 850, type: 'expense', date: 'Today' },
-      { id: 2, title: 'College Books & Supplies', category: 'Study', amount: 1200, type: 'expense', date: 'Yesterday' },
-      { id: 3, title: 'Freelance Coding Stipend', category: 'Income', amount: 15000, type: 'income', date: 'Aug 10' }
-    ]
-  },
-  entertainment: [
-    { id: 1, title: 'Jujutsu Kaisen', category: 'Anime', rating: '9.8', status: 'Watching (Season 2)', image: '🔥' },
-    { id: 2, title: 'Demon Slayer', category: 'Anime', rating: '9.5', status: 'Completed', image: '⚔️' },
-    { id: 3, title: 'Cyberpunk 2077', category: 'Gaming', rating: '9.9', status: 'Active Play', image: '🎮' },
-    { id: 4, title: 'Interstellar', category: 'Movie', rating: '10/10', status: 'Favorite', image: '🚀' }
-  ],
-  projects: [
-    { id: 1, name: 'LifeOS', desc: 'Personal Digital Command Center (React, Express, Tailwind)', status: 'V1/V2 Building', github: 'https://github.com', deploy: 'Local / Vercel', progress: 73 },
-    { id: 2, name: 'Portfolio Site', desc: 'Personal Cyberpunk Developer Portfolio', status: 'Completed', github: 'https://github.com', deploy: 'vercel.app', progress: 100 },
-    { id: 3, name: 'AI Habit Engine', desc: 'Predictive routines based on user discipline score', status: 'Planning (V3)', github: '#', deploy: 'Internal', progress: 25 }
-  ],
-  subjects: [
-    { id: 1, name: 'Data Structures & Algorithms', code: 'CS-301', progress: 85, teacher: 'Dept. Head', notesCount: 12 },
-    { id: 2, name: 'Operating Systems & Architecture', code: 'CS-302', progress: 70, teacher: 'Prof. Sharma', notesCount: 8 },
-    { id: 3, name: 'Database Management Systems', code: 'CS-303', progress: 90, teacher: 'Dr. Rao', notesCount: 15 },
-    { id: 4, name: 'Web Engineering & Frameworks', code: 'CS-304', progress: 95, teacher: 'Prof. Gupta', notesCount: 20 }
-  ],
+  checklist: [],
+  metrics: { focus: 0, energy: 0, discipline: 0, happiness: 0 },
+  habits: [],
+  accounts: [],
+  finance: { income: 0, expenses: 0, transactions: [] },
+  entertainment: [],
+  projects: [],
+  subjects: [],
   security: {
-    score: 98,
-    twoFactorEnabled: true,
-    localBackup: true,
-    encryptionKeySet: true,
-    alerts: [
-      { id: 1, message: 'All master recovery keys safely encrypted locally.', level: 'info' }
-    ]
+    score: 0,
+    twoFactorEnabled: false,
+    localBackup: false,
+    encryptionKeySet: false,
+    alerts: []
   },
-  reminders: [
-    { id: 1, time: '08:30', title: 'Morning Gym & Workout', category: 'Health', enabled: true },
-    { id: 2, time: '10:00', title: 'College Lectures & Study', category: 'Study', enabled: true },
-    { id: 3, time: '16:00', title: '2 Hours Deep Coding Session', category: 'Dev', enabled: true },
-    { id: 4, time: '22:30', title: 'Daily Review & Sleep Early', category: 'Rest', enabled: true }
-  ],
-  vaultFiles: [
-    { id: 1, title: 'Degree Certificates & Transcripts.pdf', filename: 'Degree_Certificates.pdf', category: 'Education', size: '2.4 MB', date: '2026-08-12' },
-    { id: 2, title: 'National Identity Proof (Aadhaar).pdf', filename: 'ID_Proof.pdf', category: 'Identity', size: '1.1 MB', date: '2026-08-12' }
-  ],
+  reminders: [],
+  vaultFiles: [],
   user: {
-    name: 'MOVE ON.',
+    name: 'Operator',
     motto: 'Control your digital life, or it will control you.',
     quote: 'Discipline today, Freedom tomorrow.',
-    progress: 88
+    progress: 0
   }
 };
 
@@ -227,6 +171,51 @@ app.post('/api/checklist/toggle', (req, res) => {
   res.json({ success: true, checklist: db.checklist });
 });
 
+// Add Checklist Item
+app.post('/api/checklist/add', (req, res) => {
+  const { label, tag } = req.body;
+  if (!label) return res.status(400).json({ error: 'Label required' });
+  const newItem = { id: Date.now(), label, tag: tag || 'General', completed: false };
+  if (!db.checklist) db.checklist = [];
+  db.checklist.push(newItem);
+  saveDB(db);
+  res.json({ success: true, checklist: db.checklist });
+});
+
+// Delete Checklist Item
+app.delete('/api/checklist/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.checklist = db.checklist.filter(i => i.id != id);
+  saveDB(db);
+  res.json({ success: true, checklist: db.checklist });
+});
+
+// Add Reminder
+app.post('/api/reminders/add', (req, res) => {
+  const { time, title, category } = req.body;
+  const newReminder = { id: Date.now(), time: time || '12:00', title: title || 'New Reminder', category: category || 'General', enabled: true };
+  if (!db.reminders) db.reminders = [];
+  db.reminders.push(newReminder);
+  saveDB(db);
+  res.json({ success: true, reminders: db.reminders });
+});
+
+// Delete Reminder
+app.delete('/api/reminders/delete/:id', (req, res) => {
+  const id = parseInt(req.params.id) || req.params.id;
+  db.reminders = db.reminders.filter(r => r.id != id);
+  saveDB(db);
+  res.json({ success: true, reminders: db.reminders });
+});
+
+// Toggle Reminder
+app.post('/api/reminders/toggle', (req, res) => {
+  const { id } = req.body;
+  db.reminders = db.reminders.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r);
+  saveDB(db);
+  res.json({ success: true, reminders: db.reminders });
+});
+
 // Update System Metrics
 app.post('/api/metrics', (req, res) => {
   const { focus, energy, discipline, happiness } = req.body;
@@ -238,6 +227,13 @@ app.post('/api/metrics', (req, res) => {
   };
   saveDB(db);
   res.json({ success: true, metrics: db.metrics });
+});
+
+// RESET ALL DATA — Wipe everything back to empty
+app.post('/api/reset', (req, res) => {
+  db = JSON.parse(JSON.stringify(defaultState)); // Deep clone
+  saveDB(db);
+  res.json({ success: true, message: 'All data has been reset to empty.' });
 });
 
 // --- ACCOUNTS API ---

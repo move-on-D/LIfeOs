@@ -1,57 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  CheckCircle2, 
-  Circle, 
-  Zap, 
-  Flame, 
-  Smile, 
-  Brain, 
-  ExternalLink, 
-  Clock, 
-  Quote, 
-  Compass, 
-  ArrowRight,
-  Shield,
-  KeyRound,
-  Laptop,
-  FolderLock,
-  GraduationCap,
-  Code2,
-  Wallet,
-  Target,
-  Gamepad2,
-  Sparkles
+  CheckCircle2, Circle, Zap, Flame, Smile, Brain, ExternalLink, 
+  Clock, Quote, Compass, ArrowRight, Shield, KeyRound, Laptop, 
+  FolderLock, GraduationCap, Code2, Wallet, Target, Gamepad2, 
+  Sparkles, Plus, Trash2, RefreshCw
 } from 'lucide-react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function DashboardView({ setActiveModule }) {
-  // Today's Checklist State
-  const [checklist, setChecklist] = useState([
-    { id: 1, label: 'College', completed: true, tag: 'Study' },
-    { id: 2, label: 'Code', completed: true, tag: 'Dev' },
-    { id: 3, label: 'Workout', completed: false, tag: 'Health' },
-    { id: 4, label: 'Read', completed: true, tag: 'Mind' },
-    { id: 5, label: 'NoFap', completed: true, tag: 'Focus' },
-    { id: 6, label: 'Sleep Early', completed: false, tag: 'Rest' }
-  ]);
-
-  // System Status Metrics State
-  const [metrics, setMetrics] = useState({
-    focus: 85,
-    energy: 62,
-    discipline: 90,
-    happiness: 70
-  });
-
-  // AI Assistant State
+  const [checklist, setChecklist] = useState([]);
+  const [metrics, setMetrics] = useState({ focus: 0, energy: 0, discipline: 0, happiness: 0 });
   const [aiPrompt, setAiPrompt] = useState('');
-  const [aiReply, setAiReply] = useState('Hello MOVE ON.! How can I assist your LifeOS command center today?');
+  const [aiReply, setAiReply] = useState('Hello! How can I assist your LifeOS command center today?');
   const [aiLoading, setAiLoading] = useState(false);
-
-  // Clock state
+  const [newTask, setNewTask] = useState('');
+  const [newTag, setNewTag] = useState('General');
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState(false);
   const [time, setTime] = useState(new Date());
+
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API}/api/dashboard`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.checklist) setChecklist(d.checklist);
+        if (d.metrics) setMetrics(d.metrics);
+      }).catch(() => {});
   }, []);
 
   const handleAiChat = async (e) => {
@@ -59,31 +39,50 @@ export default function DashboardView({ setActiveModule }) {
     if (!aiPrompt.trim()) return;
     setAiLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/ai/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: aiPrompt })
-      });
+      const res = await fetch(`${API}/api/ai/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: aiPrompt }) });
       const data = await res.json();
       if (data.reply) setAiReply(data.reply);
-    } catch (err) {
-      setAiReply(`Command received: "${aiPrompt}". System operational. Maintain high focus today!`);
-    } finally {
-      setAiLoading(false);
-      setAiPrompt('');
-    }
+    } catch { setAiReply(`Command received: "${aiPrompt}". System operational. Keep going!`); }
+    finally { setAiLoading(false); setAiPrompt(''); }
   };
 
-  const toggleChecklist = (id) => {
-    setChecklist(prev =>
-      prev.map(item => item.id === id ? { ...item, completed: !item.completed } : item)
-    );
+  const toggleChecklist = async (id) => {
+    setChecklist(prev => prev.map(i => i.id === id ? { ...i, completed: !i.completed } : i));
+    try {
+      const res = await fetch(`${API}/api/checklist/toggle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      const d = await res.json(); if (d.checklist) setChecklist(d.checklist);
+    } catch { }
+  };
+
+  const addTask = async (e) => {
+    e.preventDefault();
+    if (!newTask.trim()) return;
+    try {
+      const res = await fetch(`${API}/api/checklist/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label: newTask, tag: newTag }) });
+      const d = await res.json(); if (d.checklist) setChecklist(d.checklist);
+    } catch { setChecklist(p => [...p, { id: Date.now(), label: newTask, tag: newTag, completed: false }]); }
+    setNewTask(''); setShowAddTask(false);
+  };
+
+  const deleteTask = async (id) => {
+    setChecklist(p => p.filter(i => i.id !== id));
+    try { await fetch(`${API}/api/checklist/delete/${id}`, { method: 'DELETE' }); } catch { }
+  };
+
+  const handleReset = async () => {
+    if (!resetConfirm) { setResetConfirm(true); return; }
+    try {
+      await fetch(`${API}/api/reset`, { method: 'POST' });
+      setChecklist([]); setMetrics({ focus: 0, energy: 0, discipline: 0, happiness: 0 });
+      setResetConfirm(false);
+      alert('✅ All data reset to empty! You can now add your own content.');
+    } catch { alert('Reset failed — check your backend.'); }
   };
 
   const completedCount = checklist.filter(c => c.completed).length;
-  const checklistPercent = Math.round((completedCount / checklist.length) * 100);
+  const checklistPercent = checklist.length ? Math.round((completedCount / checklist.length) * 100) : 0;
 
-  // Quick Access Apps
+  // Quick Access Apps — user can customize later
   const quickApps = [
     { name: 'GitHub', icon: '💻', url: 'https://github.com', color: 'hover:border-purple-500' },
     { name: 'YouTube', icon: '▶️', url: 'https://youtube.com', color: 'hover:border-red-500' },
@@ -158,54 +157,61 @@ export default function DashboardView({ setActiveModule }) {
                 <CheckCircle2 className="w-5 h-5 text-rose-400" />
                 <h2 className="text-lg font-bold text-slate-100">Today Checklist</h2>
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-900 text-rose-400 border border-rose-500/30">
-                {completedCount}/{checklist.length} ({checklistPercent}%)
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-900 text-rose-400 border border-rose-500/30">
+                  {completedCount}/{checklist.length} ({checklistPercent}%)
+                </span>
+                <button onClick={() => setShowAddTask(!showAddTask)} className="p-1.5 rounded-lg bg-cyan-950/50 border border-cyan-800/50 text-cyan-400 hover:bg-cyan-900/50 transition-colors" title="Add task"><Plus className="w-3.5 h-3.5" /></button>
+              </div>
             </div>
+
+            {/* Add Task Form */}
+            {showAddTask && (
+              <form onSubmit={addTask} className="mb-3 flex gap-2">
+                <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="New task..." autoFocus className="flex-1 px-3 py-1.5 bg-slate-900 border border-cyan-800 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-500 font-mono" />
+                <select value={newTag} onChange={e => setNewTag(e.target.value)} className="px-2 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none">
+                  {['Study','Dev','Health','Mind','Focus','Rest','Work','General'].map(t => <option key={t}>{t}</option>)}
+                </select>
+                <button type="submit" className="px-3 py-1.5 rounded-lg bg-cyan-600 text-white text-xs font-bold">Add</button>
+              </form>
+            )}
 
             {/* Progress Bar */}
             <div className="w-full bg-slate-900 rounded-full h-2 mb-4 overflow-hidden border border-slate-800">
-              <div 
-                className="bg-gradient-to-r from-rose-500 to-indigo-500 h-2 rounded-full transition-all duration-500" 
-                style={{ width: `${checklistPercent}%` }}
-              ></div>
+              <div className="bg-gradient-to-r from-rose-500 to-indigo-500 h-2 rounded-full transition-all duration-500" style={{ width: `${checklistPercent}%` }}></div>
             </div>
+
+            {/* Empty State */}
+            {checklist.length === 0 && (
+              <div className="text-center py-6 text-slate-500 text-xs font-mono">
+                <CheckCircle2 className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                No tasks yet. Click <span className="text-cyan-400">+</span> to add your daily goals!
+              </div>
+            )}
 
             {/* Items List */}
             <div className="space-y-2">
               {checklist.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => toggleChecklist(item.id)}
-                  className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                    item.completed
-                      ? 'bg-slate-900/60 border-slate-800 text-slate-400 line-through'
-                      : 'bg-slate-800/40 border-slate-700/60 text-slate-100 hover:border-cyan-500/50 hover:bg-slate-800/80'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    {item.completed ? (
-                      <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                    )}
-                    <span className="text-sm font-medium">{item.label}</span>
+                <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${item.completed ? 'bg-slate-900/60 border-slate-800 text-slate-400' : 'bg-slate-800/40 border-slate-700/60 text-slate-100 hover:border-cyan-500/50'}`}>
+                  <div className="flex items-center space-x-3 cursor-pointer flex-1" onClick={() => toggleChecklist(item.id)}>
+                    {item.completed ? <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" /> : <Circle className="w-4 h-4 text-slate-500 flex-shrink-0" />}
+                    <span className={`text-sm font-medium ${item.completed ? 'line-through' : ''}`}>{item.label}</span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800">
-                    {item.tag}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800">{item.tag}</span>
+                    <button onClick={() => deleteTask(item.id)} className="p-1 rounded text-slate-600 hover:text-rose-400 transition-colors"><Trash2 className="w-3 h-3" /></button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-800/60 text-center">
-            <button 
-              onClick={() => setActiveModule('habits')}
-              className="text-xs text-cyan-400 hover:text-cyan-300 font-mono inline-flex items-center space-x-1"
-            >
-              <span>Manage Goals & Streaks</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+          <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between">
+            <button onClick={() => setActiveModule('habits')} className="text-xs text-cyan-400 hover:text-cyan-300 font-mono inline-flex items-center space-x-1">
+              <span>Manage Habits</span><ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={handleReset} className={`text-xs font-mono inline-flex items-center gap-1 transition-colors ${resetConfirm ? 'text-rose-400 font-bold animate-pulse' : 'text-slate-600 hover:text-rose-400'}`}>
+              <RefreshCw className="w-3 h-3" />{resetConfirm ? 'Tap again to confirm!' : 'Reset All Data'}
             </button>
           </div>
         </div>
