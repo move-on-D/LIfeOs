@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Flame, Plus, CheckCircle, X, Pencil, Trash2 } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { apiFetch } from '../utils/api';
 
 export default function GoalsHabits() {
   const [habits, setHabits] = useState([]);
@@ -10,7 +9,7 @@ export default function GoalsHabits() {
   const [formData, setFormData] = useState({ name: '', category: 'Health', streak: 0 });
 
   useEffect(() => {
-    fetch(`${API}/api/habits`).then(r => r.json()).then(d => { if (Array.isArray(d)) setHabits(d); }).catch(() => {});
+    apiFetch('/api/habits').then(r => r.json()).then(d => { if (Array.isArray(d)) setHabits(d); }).catch(() => {});
   }, []);
 
   const openAdd = () => { setEditingId(null); setFormData({ name: '', category: 'Health', streak: 0 }); setShowModal(true); };
@@ -20,10 +19,10 @@ export default function GoalsHabits() {
     e.preventDefault();
     try {
       if (editingId) {
-        const res = await fetch(`${API}/api/habits/edit/${editingId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const res = await apiFetch(`/api/habits/edit/${editingId}`, { method: 'PUT', body: JSON.stringify(formData) });
         const d = await res.json(); if (d.habits) setHabits(d.habits);
       } else {
-        const res = await fetch(`${API}/api/habits/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const res = await apiFetch('/api/habits/add', { method: 'POST', body: JSON.stringify(formData) });
         const d = await res.json(); if (d.habits) setHabits(d.habits);
       }
     } catch { }
@@ -33,7 +32,7 @@ export default function GoalsHabits() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this habit?')) return;
     try {
-      const res = await fetch(`${API}/api/habits/delete/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/habits/delete/${id}`, { method: 'DELETE' });
       const d = await res.json(); if (d.habits) setHabits(d.habits);
     } catch { setHabits(p => p.filter(h => h.id !== id)); }
   };

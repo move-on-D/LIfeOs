@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { FolderLock, Lock, Upload, Download, Trash2, X, FileText, Shield } from 'lucide-react';
+import { apiFetch, API_BASE } from '../utils/api';
 
 export default function DocumentsVault() {
-  const [docs, setDocs] = useState([
-    { id: 1, title: 'Degree Certificates & Transcripts.pdf', filename: 'Degree_Certificates.pdf', category: 'Education', size: '2.4 MB', date: '2026-08-12' },
-    { id: 2, title: 'National Identity Proof (Aadhaar).pdf', filename: 'ID_Proof.pdf', category: 'Identity', size: '1.1 MB', date: '2026-08-12' },
-    { id: 3, title: 'Project Source Backup Archives.zip', filename: 'Project_Backup.zip', category: 'Dev', size: '14.5 MB', date: '2026-08-10' }
-  ]);
-
+  const [docs, setDocs] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [category, setCategory] = useState('Education');
   const [isUploading, setIsUploading] = useState(false);
 
   const fetchFiles = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/files`)
+    apiFetch('/api/vault/files')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setDocs(data); })
       .catch(() => {});
@@ -34,9 +30,8 @@ export default function DocumentsVault() {
     reader.onload = async () => {
       const base64Data = reader.result;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/upload`, {
+        const res = await apiFetch('/api/vault/upload', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: selectedFile.name,
             category,
@@ -45,19 +40,7 @@ export default function DocumentsVault() {
         });
         const data = await res.json();
         if (data.files) setDocs(data.files);
-      } catch (err) {
-        setDocs(prev => [
-          {
-            id: Date.now(),
-            title: selectedFile.name,
-            filename: selectedFile.name,
-            category,
-            size: (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB',
-            date: new Date().toISOString().split('T')[0]
-          },
-          ...prev
-        ]);
-      } finally {
+      } catch (err) { } finally {
         setIsUploading(false);
         setShowModal(false);
         setSelectedFile(null);
@@ -68,8 +51,9 @@ export default function DocumentsVault() {
   };
 
   const handleDelete = async (id) => {
+    if (!confirm('Delete this file from vault?')) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/vault/delete/${id}`, {
+      const res = await apiFetch(`/api/vault/delete/${id}`, {
         method: 'DELETE'
       });
       const data = await res.json();

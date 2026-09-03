@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { KeyRound, Plus, Search, Check, Lock, X, Pencil, Trash2 } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { apiFetch } from '../utils/api';
 
 export default function AccountsHub() {
   const [accounts, setAccounts] = useState([]);
@@ -11,7 +10,7 @@ export default function AccountsHub() {
   const [formData, setFormData] = useState({ service: '', identity: '', category: 'Development', recovery: '2FA Enabled' });
 
   useEffect(() => {
-    fetch(`${API}/api/accounts`).then(r => r.json()).then(d => { if (Array.isArray(d)) setAccounts(d); }).catch(() => {});
+    apiFetch('/api/accounts').then(r => r.json()).then(d => { if (Array.isArray(d)) setAccounts(d); }).catch(() => {});
   }, []);
 
   const openAdd = () => { setEditingId(null); setFormData({ service: '', identity: '', category: 'Development', recovery: '2FA Enabled' }); setShowModal(true); };
@@ -21,10 +20,10 @@ export default function AccountsHub() {
     e.preventDefault();
     try {
       if (editingId) {
-        const res = await fetch(`${API}/api/accounts/edit/${editingId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, status: 'Secured' }) });
+        const res = await apiFetch(`/api/accounts/edit/${editingId}`, { method: 'PUT', body: JSON.stringify({ ...formData, status: 'Secured' }) });
         const d = await res.json(); if (d.accounts) setAccounts(d.accounts);
       } else {
-        const res = await fetch(`${API}/api/accounts/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, status: 'Secured' }) });
+        const res = await apiFetch('/api/accounts/add', { method: 'POST', body: JSON.stringify({ ...formData, status: 'Secured' }) });
         const d = await res.json(); if (d.accounts) setAccounts(d.accounts);
       }
     } catch { }
@@ -34,7 +33,7 @@ export default function AccountsHub() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this account entry?')) return;
     try {
-      const res = await fetch(`${API}/api/accounts/delete/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/accounts/delete/${id}`, { method: 'DELETE' });
       const d = await res.json(); if (d.accounts) setAccounts(d.accounts);
     } catch { setAccounts(p => p.filter(a => a.id !== id)); }
   };

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, IndianRupee, ArrowUpRight, ArrowDownLeft, Plus, X, Trash2 } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { apiFetch } from '../utils/api';
 
 export default function FinanceTracker() {
   const [finance, setFinance] = useState({ income: 0, expenses: 0, transactions: [] });
@@ -9,13 +8,13 @@ export default function FinanceTracker() {
   const [formData, setFormData] = useState({ title: '', category: 'Tech', amount: '', type: 'expense' });
 
   useEffect(() => {
-    fetch(`${API}/api/finance`).then(r => r.json()).then(d => { if (d.transactions) setFinance(d); }).catch(() => {});
+    apiFetch('/api/finance').then(r => r.json()).then(d => { if (d.transactions) setFinance(d); }).catch(() => {});
   }, []);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this transaction?')) return;
     try {
-      const res = await fetch(`${API}/api/finance/delete/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/finance/delete/${id}`, { method: 'DELETE' });
       const d = await res.json(); if (d.finance) setFinance(d.finance);
     } catch { setFinance(p => ({ ...p, transactions: p.transactions.filter(t => t.id !== id) })); }
   };
@@ -25,28 +24,13 @@ export default function FinanceTracker() {
     if (!formData.title || !formData.amount) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/finance/transaction`, {
+      const res = await apiFetch('/api/finance/transaction', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       const data = await res.json();
       if (data.finance) setFinance(data.finance);
-    } catch (err) {
-      const parsedAmt = parseFloat(formData.amount) || 0;
-      setFinance(prev => {
-        const newIncome = formData.type === 'income' ? prev.income + parsedAmt : prev.income;
-        const newExpenses = formData.type === 'expense' ? prev.expenses + parsedAmt : prev.expenses;
-        return {
-          income: newIncome,
-          expenses: newExpenses,
-          transactions: [
-            { id: Date.now(), title: formData.title, category: formData.category, amount: parsedAmt, type: formData.type, date: 'Just now' },
-            ...prev.transactions
-          ]
-        };
-      });
-    }
+    } catch { }
     setShowModal(false);
     setFormData({ title: '', category: 'Tech', amount: '', type: 'expense' });
   };

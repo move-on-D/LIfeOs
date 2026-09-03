@@ -5,8 +5,7 @@ import {
   FolderLock, GraduationCap, Code2, Wallet, Target, Gamepad2, 
   Sparkles, Plus, Trash2, RefreshCw
 } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { apiFetch } from '../utils/api';
 
 export default function DashboardView({ setActiveModule }) {
   const [checklist, setChecklist] = useState([]);
@@ -26,7 +25,7 @@ export default function DashboardView({ setActiveModule }) {
   }, []);
 
   useEffect(() => {
-    fetch(`${API}/api/dashboard`)
+    apiFetch('/api/dashboard')
       .then(r => r.json())
       .then(d => {
         if (d.checklist) setChecklist(d.checklist);
@@ -39,7 +38,7 @@ export default function DashboardView({ setActiveModule }) {
     if (!aiPrompt.trim()) return;
     setAiLoading(true);
     try {
-      const res = await fetch(`${API}/api/ai/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: aiPrompt }) });
+      const res = await apiFetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ message: aiPrompt }) });
       const data = await res.json();
       if (data.reply) setAiReply(data.reply);
     } catch { setAiReply(`Command received: "${aiPrompt}". System operational. Keep going!`); }
@@ -49,7 +48,7 @@ export default function DashboardView({ setActiveModule }) {
   const toggleChecklist = async (id) => {
     setChecklist(prev => prev.map(i => i.id === id ? { ...i, completed: !i.completed } : i));
     try {
-      const res = await fetch(`${API}/api/checklist/toggle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      const res = await apiFetch('/api/checklist/toggle', { method: 'POST', body: JSON.stringify({ id }) });
       const d = await res.json(); if (d.checklist) setChecklist(d.checklist);
     } catch { }
   };
@@ -58,7 +57,7 @@ export default function DashboardView({ setActiveModule }) {
     e.preventDefault();
     if (!newTask.trim()) return;
     try {
-      const res = await fetch(`${API}/api/checklist/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label: newTask, tag: newTag }) });
+      const res = await apiFetch('/api/checklist/add', { method: 'POST', body: JSON.stringify({ label: newTask, tag: newTag }) });
       const d = await res.json(); if (d.checklist) setChecklist(d.checklist);
     } catch { setChecklist(p => [...p, { id: Date.now(), label: newTask, tag: newTag, completed: false }]); }
     setNewTask(''); setShowAddTask(false);
@@ -66,13 +65,13 @@ export default function DashboardView({ setActiveModule }) {
 
   const deleteTask = async (id) => {
     setChecklist(p => p.filter(i => i.id !== id));
-    try { await fetch(`${API}/api/checklist/delete/${id}`, { method: 'DELETE' }); } catch { }
+    try { await apiFetch(`/api/checklist/delete/${id}`, { method: 'DELETE' }); } catch { }
   };
 
   const handleReset = async () => {
     if (!resetConfirm) { setResetConfirm(true); return; }
     try {
-      await fetch(`${API}/api/reset`, { method: 'POST' });
+      await apiFetch('/api/reset', { method: 'POST' });
       setChecklist([]); setMetrics({ focus: 0, energy: 0, discipline: 0, happiness: 0 });
       setResetConfirm(false);
       alert('✅ All data reset to empty! You can now add your own content.');

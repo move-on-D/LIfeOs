@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Gamepad2, Heart, Plus, Star, X, Pencil, Trash2 } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { apiFetch } from '../utils/api';
 
 export default function Entertainment() {
   const [items, setItems] = useState([]);
@@ -11,7 +10,7 @@ export default function Entertainment() {
   const [formData, setFormData] = useState({ title: '', category: 'Anime', rating: '9.0', status: 'Watching', image: '🎬' });
 
   useEffect(() => {
-    fetch(`${API}/api/entertainment`).then(r => r.json()).then(d => { if (Array.isArray(d)) setItems(d); }).catch(() => {});
+    apiFetch('/api/entertainment').then(r => r.json()).then(d => { if (Array.isArray(d)) setItems(d); }).catch(() => {});
   }, []);
 
   const openAdd = () => { setEditingId(null); setFormData({ title: '', category: 'Anime', rating: '9.0', status: 'Watching', image: '🎬' }); setShowModal(true); };
@@ -21,10 +20,10 @@ export default function Entertainment() {
     e.preventDefault();
     try {
       if (editingId) {
-        const res = await fetch(`${API}/api/entertainment/edit/${editingId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const res = await apiFetch(`/api/entertainment/edit/${editingId}`, { method: 'PUT', body: JSON.stringify(formData) });
         const d = await res.json(); if (d.entertainment) setItems(d.entertainment);
       } else {
-        const res = await fetch(`${API}/api/entertainment/add`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const res = await apiFetch('/api/entertainment/add', { method: 'POST', body: JSON.stringify(formData) });
         const d = await res.json(); if (d.entertainment) setItems(d.entertainment);
       }
     } catch { }
@@ -34,7 +33,7 @@ export default function Entertainment() {
   const handleDelete = async (id) => {
     if (!confirm('Remove from library?')) return;
     try {
-      const res = await fetch(`${API}/api/entertainment/delete/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/entertainment/delete/${id}`, { method: 'DELETE' });
       const d = await res.json(); if (d.entertainment) setItems(d.entertainment);
     } catch { setItems(p => p.filter(i => i.id !== id)); }
   };
