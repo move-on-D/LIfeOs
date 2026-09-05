@@ -14,7 +14,16 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-export default function Sidebar({ activeModule, setActiveModule, isMobileMenuOpen, setIsMobileMenuOpen }) {
+import { LogOut } from 'lucide-react';
+
+export default function Sidebar({ activeModule, setActiveModule, isMobileMenuOpen, setIsMobileMenuOpen, setIsAuthenticated, setUser, user }) {
+  const handleLogout = () => {
+    localStorage.removeItem('lifeos_token');
+    localStorage.removeItem('lifeos_user');
+    if (setUser) setUser(null);
+    if (setIsAuthenticated) setIsAuthenticated(false);
+  };
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: 'Main', color: 'text-cyan-400' },
     { id: 'accounts', label: 'Accounts Hub', icon: KeyRound, badge: 'Safe', color: 'text-sky-400' },
@@ -33,19 +42,43 @@ export default function Sidebar({ activeModule, setActiveModule, isMobileMenuOpe
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-md transition-opacity"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar Content */}
       <aside className={`
-        w-64 glass-panel border-r border-slate-800/80 p-4 flex-col justify-between 
-        ${isMobileMenuOpen ? 'fixed inset-y-0 left-0 z-50 bg-slate-950/95 flex top-[65px] h-[calc(100vh-65px)]' : 'sticky top-[65px] h-[calc(100vh-65px)] hidden md:flex'}
+        w-64 glass-panel border-r border-slate-800/80 p-4 flex-col justify-between z-50
+        ${isMobileMenuOpen ? 'fixed inset-y-0 left-0 bg-slate-950/98 flex top-[61px] h-[calc(100dvh-61px)] pb-24 shadow-2xl animate-in slide-in-from-left duration-200' : 'sticky top-[61px] h-[calc(100vh-61px)] hidden md:flex'}
       `}>
         {/* Navigation Links */}
-        <div className="space-y-1 overflow-y-auto pr-1">
-          <div className="text-[10px] font-mono tracking-widest text-slate-400 uppercase px-3 py-2">
+        <div className="space-y-1 overflow-y-auto pr-1 flex-1">
+          {/* Mobile Profile Card */}
+          {user && (
+            <div className="md:hidden p-3 mb-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-500 to-indigo-600 p-0.5">
+                  <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-xs font-bold text-slate-200 uppercase">
+                    {user?.username ? user.username.substring(0,2) : 'MO'}
+                  </div>
+                </div>
+                <div className="truncate max-w-[110px]">
+                  <div className="text-xs font-bold text-slate-200 truncate">{user.username}</div>
+                  <div className="text-[9px] text-cyan-400 font-mono">Operator</div>
+                </div>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/50 text-rose-400 transition-colors border border-rose-900/40"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          <div className="text-[10px] font-mono tracking-widest text-slate-400 uppercase px-3 py-1.5">
             Core Modules
           </div>
         
@@ -88,15 +121,15 @@ export default function Sidebar({ activeModule, setActiveModule, isMobileMenuOpe
       </div>
 
       {/* Quote & Footer Banner */}
-      <div className="mt-4 p-3.5 rounded-xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-slate-800 text-center relative overflow-hidden">
+      <div className="mt-3 p-3 rounded-xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-slate-800 text-center relative overflow-hidden shrink-0">
         <div className="absolute top-0 right-0 w-16 h-16 bg-rose-500/5 rounded-full blur-xl"></div>
-        <p className="text-[11px] font-mono text-cyan-300 font-semibold mb-1">
+        <p className="text-[11px] font-mono text-cyan-300 font-semibold mb-0.5">
           "夢は逃げない。逃げるのはいつも自分だ。"
         </p>
         <p className="text-[10px] text-slate-400 italic">
           (Dreams don't run away. It's you who gives up.)
         </p>
-        <div className="mt-2 text-[9px] font-mono text-rose-400 font-bold uppercase tracking-wider">
+        <div className="mt-1.5 text-[9px] font-mono text-rose-400 font-bold uppercase tracking-wider">
           Created by MOVE ON.
         </div>
       </div>

@@ -26,23 +26,23 @@ export default function LoginPage({ setIsAuthenticated, setUser }) {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
   });
 
-  // Load Google GSI Script
+  // Load Google GSI Script safely
   useEffect(() => {
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '137113753927-aqdi3dk3pucl5trnkbpv0o5mrfabbr9n.apps.googleusercontent.com';
-    if (googleClientId) {
-      setGoogleClientSet(true);
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (window.google) {
+    if (!googleClientId) return;
+
+    setGoogleClientSet(true);
+
+    const renderGoogleButton = () => {
+      if (window.google?.accounts?.id) {
+        try {
           window.google.accounts.id.initialize({
             client_id: googleClientId,
             callback: handleGoogleResponse,
           });
           const btnDiv = document.getElementById('googleBtn');
           if (btnDiv) {
+            btnDiv.innerHTML = '';
             window.google.accounts.id.renderButton(btnDiv, {
               theme: 'filled_dark',
               size: 'large',
@@ -50,11 +50,25 @@ export default function LoginPage({ setIsAuthenticated, setUser }) {
               shape: 'pill'
             });
           }
+        } catch (err) {
+          console.warn('Google GSI render warning:', err);
         }
-      };
+      }
+    };
+
+    const timer = setTimeout(renderGoogleButton, 200);
+
+    if (!window.google) {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => setTimeout(renderGoogleButton, 100);
       document.body.appendChild(script);
     }
-  }, []);
+
+    return () => clearTimeout(timer);
+  }, [isLogin]);
 
   const handleGoogleResponse = async (response) => {
     setLoading(true);

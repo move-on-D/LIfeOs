@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
+import MobileBottomNav from './components/MobileBottomNav.jsx';
 import DashboardView from './pages/DashboardView.jsx';
 import AccountsHub from './pages/AccountsHub.jsx';
 import SecurityCenter from './pages/SecurityCenter.jsx';
@@ -74,13 +75,24 @@ function App() {
           setActiveModule={setActiveModule} 
           isMobileMenuOpen={isMobileMenuOpen}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
+          setIsAuthenticated={setIsAuthenticated}
+          setUser={setUser}
+          user={user}
         />
 
         {/* Center Main Content Area */}
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 lg:p-8 pb-20 md:pb-8 overflow-y-auto w-full max-w-full overflow-x-hidden">
           {renderModule()}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav 
+        activeModule={activeModule}
+        setActiveModule={setActiveModule}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
     </div>
   );
 }

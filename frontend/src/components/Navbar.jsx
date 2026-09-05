@@ -3,6 +3,7 @@ import { Shield, Bell, Search, Cpu, Sparkles, User, Menu, X } from 'lucide-react
 
 export default function Navbar({ activeModule, setActiveModule, isMobileMenuOpen, setIsMobileMenuOpen, setIsAuthenticated, setUser, user }) {
   const [time, setTime] = useState(new Date());
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -31,11 +32,11 @@ export default function Navbar({ activeModule, setActiveModule, isMobileMenuOpen
   });
 
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 md:px-6 py-3.5 flex items-center justify-between">
+    <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-3 md:px-6 py-3 flex items-center justify-between">
       {/* Brand & Motto */}
-      <div className="flex items-center space-x-3 md:space-x-4">
+      <div className="flex items-center space-x-2 md:space-x-4">
         <button 
-          className="md:hidden p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="md:hidden p-2 -ml-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -43,7 +44,7 @@ export default function Navbar({ activeModule, setActiveModule, isMobileMenuOpen
         
         <div 
           onClick={() => { setActiveModule('dashboard'); setIsMobileMenuOpen(false); }}
-          className="flex items-center space-x-3 cursor-pointer group"
+          className="flex items-center space-x-2.5 cursor-pointer group"
         >
           <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-rose-600 p-0.5 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
             <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
@@ -67,8 +68,8 @@ export default function Navbar({ activeModule, setActiveModule, isMobileMenuOpen
       </div>
 
       {/* Center Live Clock */}
-      <div className="flex items-center space-x-3 bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800">
-        <div className="font-mono text-cyan-400 font-bold text-lg tracking-widest neon-text-blue">
+      <div className="flex items-center space-x-2 bg-slate-900/80 px-3 md:px-4 py-1.5 rounded-xl border border-slate-800">
+        <div className="font-mono text-cyan-400 font-bold text-base md:text-lg tracking-widest neon-text-blue">
           {formattedTime}
         </div>
         <div className="text-xs text-slate-400 border-l border-slate-700 pl-3 hidden sm:block">
@@ -77,7 +78,7 @@ export default function Navbar({ activeModule, setActiveModule, isMobileMenuOpen
       </div>
 
       {/* User Profile & Actions */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 md:space-x-4">
         {/* Quick Search */}
         <div className="relative hidden md:block">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -89,29 +90,55 @@ export default function Navbar({ activeModule, setActiveModule, isMobileMenuOpen
         </div>
 
         {/* Status Indicator */}
-        <div className="flex items-center space-x-2 bg-emerald-950/40 border border-emerald-800/50 px-3 py-1.5 rounded-xl text-xs text-emerald-400 font-mono">
+        <div className="hidden sm:flex items-center space-x-2 bg-emerald-950/40 border border-emerald-800/50 px-3 py-1.5 rounded-xl text-xs text-emerald-400 font-mono">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span className="hidden sm:inline">ONLINE</span>
+          <span>ONLINE</span>
         </div>
 
-        {/* User Card */}
-        <div className="flex items-center space-x-3 pl-2 border-l border-slate-800">
-          <div className="relative">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-500 to-indigo-600 p-0.5 shadow-md">
-              <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-xs font-bold text-slate-200 uppercase">
-                {user?.username ? user.username.substring(0,2) : 'MO'}
+        {/* User Card & Logout Menu */}
+        <div className="relative pl-2 border-l border-slate-800">
+          <button 
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center space-x-2.5 p-1 rounded-xl hover:bg-slate-800/60 transition-colors focus:outline-none"
+          >
+            <div className="relative">
+              <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-tr from-rose-500 to-indigo-600 p-0.5 shadow-md">
+                <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-xs font-bold text-slate-200 uppercase">
+                  {user?.username ? user.username.substring(0,2) : 'MO'}
+                </div>
               </div>
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-cyan-400 rounded-full border-2 border-slate-950"></span>
             </div>
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-cyan-400 rounded-full border-2 border-slate-950"></span>
-          </div>
-          <div className="hidden xl:block">
-            <div className="text-xs font-bold text-slate-200 leading-tight truncate max-w-[100px]">
-              {user?.username || 'MOVE ON.'}
+            <div className="hidden md:block text-left">
+              <div className="text-xs font-bold text-slate-200 leading-tight truncate max-w-[100px]">
+                {user?.username || 'Operator'}
+              </div>
+              <span className="text-[10px] text-cyan-400 font-mono">Active</span>
             </div>
-            <button onClick={handleLogout} className="text-[10px] text-rose-400 hover:text-rose-300 font-mono">
-              Logout
-            </button>
-          </div>
+          </button>
+
+          {/* User Popover Menu */}
+          {showUserMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+              <div className="absolute right-0 mt-2 w-52 glass-panel bg-slate-950/95 border border-slate-800 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="p-2 border-b border-slate-800 mb-2">
+                  <p className="text-xs font-bold text-slate-200 truncate">{user?.username || 'Operator'}</p>
+                  <p className="text-[10px] text-slate-400 font-mono">LifeOS Operator</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 font-mono transition-colors border border-rose-900/30"
+                >
+                  <span>Logout of System</span>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>
